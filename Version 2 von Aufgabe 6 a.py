@@ -2,6 +2,8 @@ import requests
 import json
 import pandas as pd
 from dash import Dash, html, dash_table, dcc, callback, Output, Input
+import dash_leaflet as dl
+import dash_leaflet.express as dlx
 import plotly.express as px
 
 # API-Schlüssel und Basis-URL
@@ -75,18 +77,39 @@ df_3 = pd.concat([df_1, df_2], ignore_index=True)
 # 5. Ausgabe der ersten Zeilen des kombinierten DataFrames zur Überprüfung
 print(df_3.head())
 
-# Beispiel wie du die Daten in deiner Dash App verwenden kannst
+# Dash App erstellen
 app = Dash(__name__)
 
+# Layout der App mit Karte und Grafik
 app.layout = html.Div(children=[
-    html.H1(children='Parkhaus Klima'),
-    dash_table.DataTable(data=df_3.to_dict('records'), page_size=10),
+    html.H1(children='Parkhaus und Klima Karte Basel-Stadt mit OpenStreetMap'),
+    # OpenStreetMap Karte
     html.Hr(),
-    dcc.RadioItems(options=[{'label': 'Free', 'value': 'free'}, {'label': 'Total', 'value': 'total'}], value='free',
-                   id='controls-and-radio-item'),
-    dcc.Graph(figure={}, id='controls-and-graph'),
+    dl.Map(center=[47.5596, 7.5886], zoom=13, children=[
+        dl.TileLayer(),
+        dl.LayerGroup(
+            [dl.Marker(
+                position=[row['Latitude'], row['Longitude']],
+                children=[dl.Tooltip(row['title']), dl.Popup(row['Kategorie'])]
+            ) for index, row in df_3.iterrows() if pd.notnull(row['Latitude']) and pd.notnull(row['Longitude'])]
+        )
+    ], # style={'width': '1000px', 'height': '500px'}),
+        style={'height': '500px'}),
+
+
+    # Tabelle der Daten
+    dash_table.DataTable(data=df_3.to_dict('records'), page_size=10),
+
     html.H4(children='Parkhaus und Klima 2024'),
-    dash_table.DataTable(data=df_3.to_dict('records'), page_size=10)
+
+    # RadioItems für die Auswahl der Grafik
+    dcc.RadioItems(
+        options=[{'label': 'Free', 'value': 'free'}, {'label': 'Total', 'value': 'total'}],
+        value='free', id='controls-and-radio-item'
+    ),
+
+    # Grafik
+    dcc.Graph(figure={}, id='controls-and-graph')
 ])
 
 @callback(
