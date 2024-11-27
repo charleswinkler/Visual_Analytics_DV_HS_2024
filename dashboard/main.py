@@ -30,13 +30,23 @@ df_2 = df_2.rename(columns={
 })
 
 # Geokoordinaten extrahieren und den DataFrame erweitern
-df_1 = df_1.join(df_1.apply(extract_coordinates, axis=1))
-df_2 = df_2.join(df_2.apply(extract_coordinates, axis=1))
+df_1[['Longitude', 'Latitude']] = df_1.apply(extract_coordinates, axis=1)
+df_2[['Longitude', 'Latitude']] = df_2.apply(extract_coordinates, axis=1)
+df_1.drop(columns=['geo_point_2d', 'coords'], errors='ignore', inplace=True)
+df_2.drop(columns=['geo_point_2d', 'coords'], errors='ignore', inplace=True)
+
+# DataFrames zusammenführen
 df_3 = pd.concat([df_1, df_2], ignore_index=True)
+
+# Optional: Sicherstellen, dass Longitude und Latitude existieren
+if 'Longitude' not in df_3.columns or 'Latitude' not in df_3.columns:
+    st.warning("Die Daten enthalten keine gültigen Geokoordinaten. Die Karte wird nicht angezeigt.")
 
 # Gesamtdaten-Tabelle anzeigen
 st.write('## Gesamtdaten-Tabelle')
 st.dataframe(df_3)
+
+st.write(df_3.head())
 
 # Karte mit Parkhäusern
 plot_map(df_3)

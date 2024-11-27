@@ -18,3 +18,4 @@ def plot_map(df):
         ).add_to(basel_map)
 
     st_folium(basel_map, width=700, height=500)
+
