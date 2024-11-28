@@ -6,7 +6,8 @@ from line_chart import plot_line_chart
 from bar_chart import plot_bar_chart
 from heatmap import plot_heatmap
 import pandas as pd
-from utils import extract_coordinates
+from utils import extract_coordinates, filter_by_date
+from change_point_detection import detect_change_points
 
 
 # Titel des Dashboards
@@ -46,8 +47,6 @@ if 'Longitude' not in df_3.columns or 'Latitude' not in df_3.columns:
 st.write('## Gesamtdaten-Tabelle')
 st.dataframe(df_3)
 
-st.write(df_3.head())
-
 # Karte mit Parkhäusern
 plot_map(df_3)
 
@@ -56,10 +55,39 @@ col1, col2 = st.columns(2)
 
 with col1:
     plot_gauge(df_3)
-
     plot_line_chart(df_3)
 
 with col2:
     plot_bar_chart(df_3)
-
     plot_heatmap(df_3)
+
+# Sicherstellen, dass die 'published'-Spalte datetime ist (und ggf. Zeitzone entfernen)
+df_3['published'] = pd.to_datetime(df_3['published'], errors='coerce').dt.tz_localize(None)  # Entferne Zeitzone
+
+# Datumsauswahl für Trendanalyse (konvertiere die Eingabedaten in datetime)
+start_date = pd.to_datetime(
+    st.date_input("Startdatum", value=df_3['published'].min().date(), key="start_date_input")
+).tz_localize(None)
+end_date = pd.to_datetime(
+    st.date_input("Enddatum", value=df_3['published'].max().date(), key="end_date_input")
+).tz_localize(None)
+
+# Filtere den DataFrame nach dem Zeitraum
+filtered_df = df_3[(df_3['published'] >= start_date) & (df_3['published'] <= end_date)]
+
+# Change-Point-Analyse durchführen
+change_point_result = detect_change_points(
+    filtered_df,
+    timestamp_column='published',
+    value_column='auslastungen in prozent',
+    model="rbf",  # Modelltyp für Change-Point-Analyse
+    penalty=10    # Empfindlichkeit
+)
+
+# Ergebnisse der Change-Point-Analyse anzeigen
+st.write("### Ergebnisse der Change-Point-Analyse")
+st.write(f"Change-Points: {change_point_result['change_points']}")
+
+# Visualisierung der Change-Points
+st.pyplot(change_point_result['plot'])
+
