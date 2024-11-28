@@ -8,7 +8,8 @@ from heatmap import plot_heatmap
 import pandas as pd
 from utils import extract_coordinates, filter_by_date
 from trend_detection import detect_change_points
-
+from manhattan_distance import main as manhattan_main
+from map_cluster import plot_map_with_clusters
 
 
 # Titel des Dashboards
@@ -99,3 +100,10 @@ for trend in change_point_result['trends']:
 
 # Visualisierung der Change-Points
 st.pyplot(change_point_result['plot'])
+
+# Manhattan-Abstand und Clustering der Parkhäuser durchführen
+clustered_df = manhattan_main(df_3)  # Clustering direkt auf df_3 anwenden
+
+# Karte mit Parkhäusern und Clustern anzeigen
+st.write("## Parkhäuser in Basel-Stadt mit Clustern")
+plot_map_with_clusters(clustered_df)  # Verwende das neue Modul zur Kartendarstellung
