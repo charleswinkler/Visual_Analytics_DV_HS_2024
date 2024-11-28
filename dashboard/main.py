@@ -7,7 +7,8 @@ from bar_chart import plot_bar_chart
 from heatmap import plot_heatmap
 import pandas as pd
 from utils import extract_coordinates, filter_by_date
-from change_point_detection import detect_change_points
+from trend_detection import detect_change_points
+
 
 
 # Titel des Dashboards
@@ -75,19 +76,26 @@ end_date = pd.to_datetime(
 # Filtere den DataFrame nach dem Zeitraum
 filtered_df = df_3[(df_3['published'] >= start_date) & (df_3['published'] <= end_date)]
 
-# Change-Point-Analyse durchführen
+# Change-Point-Analyse und Trendanalyse durchführen
 change_point_result = detect_change_points(
     filtered_df,
     timestamp_column='published',
     value_column='auslastungen in prozent',
     model="rbf",  # Modelltyp für Change-Point-Analyse
-    penalty=10    # Empfindlichkeit
+    penalty=10,    # Empfindlichkeit
+    start_date=start_date,  # Nutzerdefiniertes Startdatum
+    end_date=end_date       # Nutzerdefiniertes Enddatum
 )
 
 # Ergebnisse der Change-Point-Analyse anzeigen
 st.write("### Ergebnisse der Change-Point-Analyse")
 st.write(f"Change-Points: {change_point_result['change_points']}")
+st.write(f"Relevante Intervalle: {change_point_result['intervals']}")
+
+# Zeige die Trends in den Intervallen
+st.write("### Trends in den Intervallen")
+for trend in change_point_result['trends']:
+    st.write(f"Intervall: {trend['start']} - {trend['end']}, Steigung: {trend['slope']}")
 
 # Visualisierung der Change-Points
 st.pyplot(change_point_result['plot'])
-
