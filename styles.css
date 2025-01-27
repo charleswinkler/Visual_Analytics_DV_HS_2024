@@ -1,0 +1,25 @@
+<!-- styles.css -->
+.css-1d391kg {
+    margin-top: 0px;
+}
+.stColumns {
+    display: flex;
+    flex-direction: row;
+    height: 50vh;
+}
+.stColumn {
+    flex: 1;
+    height: 50vh;
+}
+
+.css-1d391kg {margin-top: 0px;  /* Setzt den Abstand der Tabs zum oberen Rand auf 0 */
+            }
+
+.stColumns {display: flex;
+            flex-direction: row;
+            height: 50vh;  /* Beide Reihen (oben und unten) nehmen die Hälfte der Bildschirmhöhe ein */
+            }
+
+.stColumn {flex: 1;
+            height: 50vh;  /* Jede Visualisierung nimmt 50% der Höhe der rechten Spalte ein */
+            }
