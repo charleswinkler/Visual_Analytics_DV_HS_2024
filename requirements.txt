@@ -1,3 +1,12 @@
 requests~=2.32.3
 pandas~=2.2.3
 streamlit~=1.41.1
+numpy~=1.26.4
+seaborn~=0.13.2
+matplotlib~=3.10.0
+plotly~=6.0.0rc0
+folium~=0.19.4
+streamlit_folium~=0.24.0
+geopy~=2.4.1
+scikit-learn~=1.6.1
+duckdb~=1.1.3
