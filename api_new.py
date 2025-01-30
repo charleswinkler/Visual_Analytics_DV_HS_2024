@@ -125,6 +125,7 @@ def clean_and_rename_data(df: pd.DataFrame) -> pd.DataFrame:
 
     # Datum und Zeitstempel konvertieren
     df['Datum'] = pd.to_datetime(df['Datum'], format='%d.%m.%Y').dt.date
+    df['Datum'] = pd.to_datetime(df['Datum'], errors='coerce') 
     df['Datum'] = df['Datum'].dt.date  # Entfernt die Uhrzeit
     df['timestamp'] = pd.to_datetime(df['Datum'].astype(str) + ' ' + df['Stunde'].astype(str) + ':00')
 
